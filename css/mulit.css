@@ -1,0 +1,76 @@
+body {
+	font-size: 62.5%;
+       background-color: #121212;
+	color: #f1c40f;
+
+}
+
+button {
+	/*font-size: 2em;*/
+	position: relative;margin: 0px 5px 4px 5px;
+}
+
+#iframeArea {
+	width: 100%;
+	height: 100%;
+}
+
+.big_box {
+    min-width: 34em;
+
+	width: 25%;
+	height: calc(100vh - 50px);
+	;
+		position: relative;
+	line-height: 60em;
+	float: left;
+	overflow: hidden;
+}
+@media screen and (max-device-width: 480px) {
+    .big_box {
+        margin: 0 4%;
+        width: 92%;
+        height: calc(80vh);
+    }
+}
+.small_box {
+	width: 10em;
+	height: 15em;
+	position: relative;
+	line-height: 15em;
+	float: left;
+	margin: 1em 1em 0 0;
+	overflow: hidden;
+}
+
+iframe {
+	width: 99%;
+	height: 99%;
+	position: absolute;
+}
+
+.cover {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	text-align: center;
+	font-size: 10em;
+	background: black;
+	color: white;
+}
+
+.disable {
+	display: none;
+}
+
+.float {
+	
+	height: 2em;
+	line-height: 2em;
+	margin: 0px 5px 4px 5px;
+
+}
+
+.btn {
+	margin: 0px 5px 4px 5px;
+}
