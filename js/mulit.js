@@ -1,5 +1,5 @@
 var count = 0;
-var prefix = 'game';
+var prefix = 'www';
 var nosc = false;
 (function () {
     let r = getQueryString("c");
@@ -85,7 +85,7 @@ function flush(idx) {
 
         document.getElementById('f' + idx).src = `http://baidu.com`;
         setTimeout(()=>{
-        document.getElementById('f' + idx).src = `http://${prefix}.wsmud.com/?test`;},5000);
+        document.getElementById('f' + idx).src = `http://${prefix}.wamud.com/?test`;},5000);
     }
 
 }
@@ -223,13 +223,13 @@ function run(command) {
             if (nosc) {
                 iframe.src = `http://mush.aize.org/?test&login=${i}`;
             } else {
-                iframe.src = `http://${prefix}.wsmud.com/?test&login=${i}`;
+                iframe.src = `http://${prefix}.wamud.com/?test&login=${i}`;
             }
         else {
             if (nosc) {
                 iframe.src = `http://mush.aize.org/?test`;
             } else {
-                iframe.src = `http://${prefix}.wsmud.com/?test`;
+                iframe.src = `http://${prefix}.wamud.com/?test`;
             }
         }
 
