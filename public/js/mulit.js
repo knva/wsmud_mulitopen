@@ -134,10 +134,12 @@ function createLazyBtn(name, console) {
             }
         }else if(console == "bf"){
             // 备份
-            saveConfig()
+            var jsdd = saveConfig()
+            window.frames[0].postMessage(jsdd, "*");
         }else if(console == "hf"){
             // 恢复
-            loadConfig()
+            var jsdd = loadConfig()
+            window.frames[0].postMessage(jsdd, "*");
         }
         else {
             for (let i = 0; i < window.frames.length; i++) {
@@ -293,52 +295,60 @@ function IsPC() {
 }
 
 function saveConfig() {
-    if (!nosc) {
-        // 提示用户只能在简易模式下使用
-        alert("只能在简易模式下使用");
-    }
-    // 遍历localStorage，把所有的键值对保存成文件下载
-    var fileName = "config.txt";
-    var content = "";
-    for (var i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i);
-        var value = localStorage.getItem(key);
-        content += key + "=" + value + "\n";
-    }
-    var blob = new Blob([content], { type: "text/plain" });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    a.click();
-    URL.revokeObjectURL(url);
+    // // 将localStorage中的配置信息保存为json字符串
+    // var config = {};
+    // var keys=Object.keys( localStorage);
+    // for(var k in keys){
+    //     var key=keys[k];var value=localStorage.getItem( key );
+    //     config[key] = value;
+    // }
+    // var json = JSON.stringify(config);
+    // // 将json字符串保存到本地文件中
+    // var blob = new Blob([json], { type: "text/plain" });
+    // var url = URL.createObjectURL(blob);
+    // var a = document.createElement("a");
+    // a.href = url;
+    // a.download = "config.json";
+    // a.click();
+    // URL.revokeObjectURL(url);
+
+return `//
+@js var config={};var keys=Object.keys( localStorage);for( var k in keys){var key=keys[k];var value=localStorage.getItem( key);config[key]=value}var json=JSON.stringify( config);var blob=new Blob( [json],{type:"text/plain"});var url=URL.createObjectURL( blob);var a=document.createElement( "a");a.href=url;a.download="config.json";a.click( );URL.revokeObjectURL( url);`
 
 
 }
 
 
 function loadConfig(){
-    if(!nosc){
-        // 提示用户只能在简易模式下使用
-        alert("只能在简易模式下使用");
-    }
-    //上传文件
-    var file = document.getElementById("file").files[0];
-    var reader = new FileReader();
-    reader.readAsText(file);
-    reader.onload = function (e) {
-        var content = e.target.result;
-        var lines = content.split("\n");
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            var pair = line.split("=");
-            if (pair.length == 2) {
-                localStorage.setItem(pair[0], pair[1]);
-            }
-        }
-    }
-
+//   // 提示用户选择文件
+//     var input = document.createElement('input');
+//     input.type = 'file';
+//     input.onchange = function () {
+//         // 获取文件列表中的第一个文件
+//         var file = this.files[0];
+//         // 创建一个读取文件的对象
+//         var reader = new FileReader();
+//         // 将文件读取为字符串
+//         reader.readAsText(file);
+//         // 读取文件成功后执行的回调函数
+//         reader.onload = function () {
+//             // 获取文件内容
+//             var content = this.result;
+//             // 将json字符串转换为对象
+//             var config = JSON.parse(content);
+//             // 将对象中的属性赋值给 localStorage
+//             for (var key in config) {
+//                 localStorage.setItem(key, obj[key]);
+//             }
+//             alert('操作成功,请刷新页面')
+//         }
+//     }
+//     // 添加到页面中
+//     input.click();
+return `//
+@js var input=document.createElement('input');input.type='file';input.onchange=function(){var file=this.files[0];var reader=new FileReader();reader.readAsText(file);reader.onload=function(){var content=this.result;var config=JSON.parse(content);for(var key in config){localStorage.setItem(key,obj[key])}alert('操作成功,请刷新页面')}};input.click();`
 }
+
 
 function clickCover() {
     var box_array = document.getElementsByClassName("small_box" + " " + this.innerHTML);

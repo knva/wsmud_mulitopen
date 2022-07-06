@@ -9,6 +9,8 @@ import { getAssetFromKV, mapRequestToAsset } from '@cloudflare/kv-asset-handler'
  */
 const DEBUG = false
 
+
+
 addEventListener('fetch', event => {
   event.respondWith(handleEvent(event))
 })
@@ -40,6 +42,15 @@ async function handleEvent(event) {
     response.headers.set('X-Frame-Options', 'DENY')
     response.headers.set('Referrer-Policy', 'unsafe-url')
     response.headers.set('Feature-Policy', 'none')
+    // 添加允许跨域
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    response.headers.set('Access-Control-Allow-Headers', '*')
+    response.headers.set('Access-Control-Allow-Methods', '*')
+    response.headers.set('Access-Control-Allow-Credentials', 'true')
+    response.headers.set('Access-Control-Expose-Headers', '*')
+    response.headers.set('Access-Control-Max-Age', '86400')
+    response.headers.set('Access-Control-Allow-Credentials', 'true')
+    
 
     return response
 
