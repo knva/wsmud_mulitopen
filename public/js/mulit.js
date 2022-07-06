@@ -346,7 +346,7 @@ function loadConfig(){
 //     // 添加到页面中
 //     input.click();
 return `//
-@js var input=document.createElement('input');input.type='file';input.onchange=function(){var file=this.files[0];var reader=new FileReader();reader.readAsText(file);reader.onload=function(){var content=this.result;var config=JSON.parse(content);for(var key in config){localStorage.setItem(key,obj[key])}alert('操作成功,请刷新页面')}};input.click();`
+@js var input=document.createElement('input');input.type='file';input.onchange=function(){var file=this.files[0];var reader=new FileReader();reader.readAsText(file);reader.onload=function(){var content=this.result;var config=JSON.parse(content);for(var key in config){localStorage.setItem(key,config[key])}alert('操作成功,请刷新页面')}};input.click();`
 }
 
 
