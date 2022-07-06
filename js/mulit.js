@@ -28,7 +28,7 @@ var nosc = false;
         }
         var auBtn = document.getElementById("auto");
         var noBtn = document.getElementById("nosc");
-        auBtn.onchange=function(){
+        auBtn.onchange = function () {
             addCookie('auto', document.getElementById("auto").checked)
             auto = document.getElementById("auto").checked
         }
@@ -84,8 +84,9 @@ function flush(idx) {
     } else {
 
         document.getElementById('f' + idx).src = `http://baidu.com`;
-        setTimeout(()=>{
-        document.getElementById('f' + idx).src = `http://${prefix}.wamud.com/?test`;},5000);
+        setTimeout(() => {
+            document.getElementById('f' + idx).src = `http://${prefix}.wamud.com/?test`;
+        }, 5000);
     }
 
 }
@@ -131,7 +132,16 @@ function createLazyBtn(name, console) {
             for (let i = 0; i < window.frames.length; i++) {
                 window.frames[i].postMessage(mymsg, "*");
             }
-        } else {
+        }else if(console == "bf"){
+            // 备份
+            var jsdd = saveConfig()
+            window.frames[0].postMessage(jsdd, "*");
+        }else if(console == "hf"){
+            // 恢复
+            var jsdd = loadConfig()
+            window.frames[0].postMessage(jsdd, "*");
+        }
+        else {
             for (let i = 0; i < window.frames.length; i++) {
                 window.frames[i].postMessage(console, "*");
             }
@@ -189,6 +199,10 @@ function creatFloatDiv() {
         "当铺": "stopstate;$tnbuy",
         "导入流程或触发": "fx"
 
+    }
+    if(nosc){
+        btnList['备份']='bf';
+        btnList['恢复']='hf';
     }
 
     for (let item in btnList) {
@@ -278,6 +292,61 @@ function IsPC() {
         }
     }
     return flag;
+}
+
+function saveConfig() {
+    // // 将localStorage中的配置信息保存为json字符串
+    // var config = {};
+    // var keys=Object.keys( localStorage);
+    // for(var k in keys){
+    //     var key=keys[k];var value=localStorage.getItem( key );
+    //     config[key] = value;
+    // }
+    // var json = JSON.stringify(config);
+    // // 将json字符串保存到本地文件中
+    // var blob = new Blob([json], { type: "text/plain" });
+    // var url = URL.createObjectURL(blob);
+    // var a = document.createElement("a");
+    // a.href = url;
+    // a.download = "config.json";
+    // a.click();
+    // URL.revokeObjectURL(url);
+
+return `//
+@js var config={};var keys=Object.keys( localStorage);for( var k in keys){var key=keys[k];var value=localStorage.getItem( key);config[key]=value}var json=JSON.stringify( config);var blob=new Blob( [json],{type:"text/plain"});var url=URL.createObjectURL( blob);var a=document.createElement( "a");a.href=url;a.download="config.json";a.click( );URL.revokeObjectURL( url);`
+
+
+}
+
+
+function loadConfig(){
+//   // 提示用户选择文件
+//     var input = document.createElement('input');
+//     input.type = 'file';
+//     input.onchange = function () {
+//         // 获取文件列表中的第一个文件
+//         var file = this.files[0];
+//         // 创建一个读取文件的对象
+//         var reader = new FileReader();
+//         // 将文件读取为字符串
+//         reader.readAsText(file);
+//         // 读取文件成功后执行的回调函数
+//         reader.onload = function () {
+//             // 获取文件内容
+//             var content = this.result;
+//             // 将json字符串转换为对象
+//             var config = JSON.parse(content);
+//             // 将对象中的属性赋值给 localStorage
+//             for (var key in config) {
+//                 localStorage.setItem(key, obj[key]);
+//             }
+//             alert('操作成功,请刷新页面')
+//         }
+//     }
+//     // 添加到页面中
+//     input.click();
+return `//
+@js var input=document.createElement('input');input.type='file';input.onchange=function(){var file=this.files[0];var reader=new FileReader();reader.readAsText(file);reader.onload=function(){var content=this.result;var config=JSON.parse(content);for(var key in config){localStorage.setItem(key,config[key])}alert('操作成功,请刷新页面')}};input.click();`
 }
 
 
