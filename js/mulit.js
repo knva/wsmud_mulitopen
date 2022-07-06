@@ -295,6 +295,7 @@ function IsPC() {
 }
 
 function saveConfig() {
+    alert('如果点击无效，请点击一下第一个子窗口')
     // // 将localStorage中的配置信息保存为json字符串
     // var config = {};
     // var keys=Object.keys( localStorage);
@@ -320,6 +321,7 @@ return `//
 
 
 function loadConfig(){
+    alert('如果点击无效，请点击一下第一个子窗口')
 //   // 提示用户选择文件
 //     var input = document.createElement('input');
 //     input.type = 'file';
