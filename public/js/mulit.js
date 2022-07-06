@@ -28,7 +28,7 @@ var nosc = false;
         }
         var auBtn = document.getElementById("auto");
         var noBtn = document.getElementById("nosc");
-        auBtn.onchange=function(){
+        auBtn.onchange = function () {
             addCookie('auto', document.getElementById("auto").checked)
             auto = document.getElementById("auto").checked
         }
@@ -84,8 +84,9 @@ function flush(idx) {
     } else {
 
         document.getElementById('f' + idx).src = `http://baidu.com`;
-        setTimeout(()=>{
-        document.getElementById('f' + idx).src = `http://${prefix}.wamud.com/?test`;},5000);
+        setTimeout(() => {
+            document.getElementById('f' + idx).src = `http://${prefix}.wamud.com/?test`;
+        }, 5000);
     }
 
 }
@@ -131,7 +132,14 @@ function createLazyBtn(name, console) {
             for (let i = 0; i < window.frames.length; i++) {
                 window.frames[i].postMessage(mymsg, "*");
             }
-        } else {
+        }else if(console == "bf"){
+            // 备份
+            saveConfig()
+        }else if(console == "hf"){
+            // 恢复
+            loadConfig()
+        }
+        else {
             for (let i = 0; i < window.frames.length; i++) {
                 window.frames[i].postMessage(console, "*");
             }
@@ -189,6 +197,10 @@ function creatFloatDiv() {
         "当铺": "stopstate;$tnbuy",
         "导入流程或触发": "fx"
 
+    }
+    if(nosc){
+        btnList['备份']='bf';
+        btnList['恢复']='hf';
     }
 
     for (let item in btnList) {
@@ -280,6 +292,53 @@ function IsPC() {
     return flag;
 }
 
+function saveConfig() {
+    if (!nosc) {
+        // 提示用户只能在简易模式下使用
+        alert("只能在简易模式下使用");
+    }
+    // 遍历localStorage，把所有的键值对保存成文件下载
+    var fileName = "config.txt";
+    var content = "";
+    for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        var value = localStorage.getItem(key);
+        content += key + "=" + value + "\n";
+    }
+    var blob = new Blob([content], { type: "text/plain" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
+
+
+}
+
+
+function loadConfig(){
+    if(!nosc){
+        // 提示用户只能在简易模式下使用
+        alert("只能在简易模式下使用");
+    }
+    //上传文件
+    var file = document.getElementById("file").files[0];
+    var reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = function (e) {
+        var content = e.target.result;
+        var lines = content.split("\n");
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            var pair = line.split("=");
+            if (pair.length == 2) {
+                localStorage.setItem(pair[0], pair[1]);
+            }
+        }
+    }
+
+}
 
 function clickCover() {
     var box_array = document.getElementsByClassName("small_box" + " " + this.innerHTML);
