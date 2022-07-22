@@ -115,6 +115,7 @@ var nosc = false;
                 }
                 reader.readAsText(file);
             }
+            input.click();
         }
     }
 
