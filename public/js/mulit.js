@@ -77,7 +77,9 @@ var nosc = false;
                 zdybtn[key] = value;
             }
             set_value('zdybtn', JSON.stringify(zdybtn));
-            rebuild_btnhtml()
+            rebuild_btnhtml();
+            addbtns();
+            
         }
         // 绑定outputbtn
         document.getElementById("outputbtn").onclick = function () {
@@ -115,7 +117,7 @@ var nosc = false;
                 }
                 reader.readAsText(file);
             }
-            input.click()
+            input.click();
         }
     }
 
@@ -190,7 +192,7 @@ function createDuoKaiButton(name, value) {
     return button;
 }
 function createLazyBtn(name, order) {
-    var float = document.getElementById("float");
+    var float = document.getElementById("floatbtns");
     var button = document.createElement("button");
     button = document.createElement("button");
     button.innerHTML = name;
@@ -225,14 +227,14 @@ function createLazyBtn(name, order) {
             layer.open({
                 type: 1,
                 title: '自定义按钮',
-                area: ['500px', '300px'],
+                area: ['700px', '300px'],
                 content: $('#userBtnSetting')
             });
 
         }
         else {
             for (let i = 0; i < window.frames.length; i++) {
-                window.frames[i].postMessage(console, "*");
+                window.frames[i].postMessage(order, "*");
             }
         };
     }
@@ -250,7 +252,9 @@ function rebuild_btnhtml() {
     // 向 keyvalue 循环添加zdybtn的key value 值
     var html = ''
     for (let key in zdybtn) {
-        html += `<p><input type="text" value="${key}"</input> : <input type="text" value="${zdybtn[key]}"</p>`;
+        html += `<p><input type="text" value="${key}"</input> : <textarea name="textarea"
+        rows="3" cols="40"
+        placeholder="Comment text.">${zdybtn[key]}</textarea></p>`;
     }
     document.getElementById("keyvalue").innerHTML = html;
 }
@@ -286,7 +290,13 @@ function creatFloatDiv() {
         }
     };
     float.appendChild(button);
+    addbtns();
 
+}
+
+function addbtns(){
+    var float = document.getElementById("floatbtns");
+    float.innerHTML = '';
     var btnList = {
         "日常": "日常",
         "修炼": "修炼",
@@ -319,9 +329,7 @@ function creatFloatDiv() {
     btnList['导入流程或触发'] = 'fx';
     btnList['自定义按钮'] = 'zdy';
     addZdyBtn(btnList)
-
 }
-
 
 
 function addZdyBtn(btnList) {
