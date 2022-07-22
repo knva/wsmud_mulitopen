@@ -48,9 +48,86 @@ var nosc = false;
             document.getElementById("nosc").checked = true;
             nosc = true;
         }
+
+        // 绑定addrow 事件
+        document.getElementById("addrow").onclick = function () {
+            var zdybtn = get_value('zdybtn');
+            if (zdybtn) {
+                zdybtn = JSON.parse(zdybtn);
+            }
+            // 名称为input btname
+            var btname = document.getElementById("btname").value;
+            zdybtn[btname] = ''
+            set_value('zdybtn', JSON.stringify(zdybtn));
+            rebuild_btnhtml()
+
+        }
+
+        // 绑定save事件
+        document.getElementById("save").onclick = function () {
+            var zdybtn = get_value('zdybtn');
+            if (zdybtn) {
+                zdybtn = JSON.parse(zdybtn);
+            }
+            // 遍历keyvalue的label 与 input
+            var datalist = $('#keyvalue').children();
+            for (let i = 0; i < datalist.length; i++) {
+                var key = datalist[i].children[0].value;
+                var value = datalist[i].children[1].value;
+                zdybtn[key] = value;
+            }
+            set_value('zdybtn', JSON.stringify(zdybtn));
+            rebuild_btnhtml()
+        }
+        // 绑定outputbtn
+        document.getElementById("outputbtn").onclick = function () {
+            var zdybtn = get_value('zdybtn');
+            if (zdybtn) {
+                zdybtn = JSON.parse(zdybtn);
+            }
+            // 下载json文件
+            var blob = new Blob([zdybtn], { type: "text/plain;charset=utf-8" });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "config.json";
+            a.click();
+            URL.revokeObjectURL(url);
+
+        }
+        // 绑定inputbtn
+        document.getElementById("inputbtn").onclick = function () {
+            var zdybtn = get_value('zdybtn');
+            if (zdybtn) {
+                zdybtn = JSON.parse(zdybtn);
+            }
+            // 创建文件选择框
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.onchange = function () {
+                var file = this.files[0];
+                var reader = new FileReader();
+                reader.onload = function () {
+                    var text = reader.result;
+                    zdybtn = JSON.parse(text);
+                    set_value('zdybtn', JSON.stringify(text));
+                    rebuild_btnhtml();
+                }
+                reader.readAsText(file);
+            }
+        }
     }
 
 })();
+
+function get_value(name) {
+    //返回本地存储
+    return localStorage.getItem(name);
+}
+
+function set_value(name, value) {
+    localStorage.setItem(name, value);
+}
 
 function getCookie(name) {
     var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
@@ -111,14 +188,14 @@ function createDuoKaiButton(name, value) {
     button.innerHTML = name;
     return button;
 }
-function createLazyBtn(name, console) {
+function createLazyBtn(name, order) {
     var float = document.getElementById("float");
     var button = document.createElement("button");
     button = document.createElement("button");
     button.innerHTML = name;
     button.className = "float";
     button.onclick = function () {
-        if (console == "fx") {
+        if (order == "fx") {
             var name = prompt("请输入您的分享码", "");
             var mymsg = "";
             if (name.indexOf("触发") >= 0) {
@@ -132,14 +209,25 @@ function createLazyBtn(name, console) {
             for (let i = 0; i < window.frames.length; i++) {
                 window.frames[i].postMessage(mymsg, "*");
             }
-        }else if(console == "bf"){
+        } else if (order == "bf") {
             // 备份
             var jsdd = saveConfig()
             window.frames[0].postMessage(jsdd, "*");
-        }else if(console == "hf"){
+        } else if (order == "hf") {
             // 恢复
             var jsdd = loadConfig()
             window.frames[0].postMessage(jsdd, "*");
+        } else if (order == 'zdy') {
+
+            rebuild_btnhtml()
+            // 自定义按钮 使用layer 弹出userBtnSetting
+            layer.open({
+                type: 1,
+                title: '自定义按钮',
+                area: ['500px', '300px'],
+                content: $('#userBtnSetting')
+            });
+
         }
         else {
             for (let i = 0; i < window.frames.length; i++) {
@@ -149,6 +237,21 @@ function createLazyBtn(name, console) {
     }
     float.appendChild(button);
 
+}
+function rebuild_btnhtml() {
+    // 清空keyvalue
+    document.getElementById("keyvalue").innerHTML = "";
+    var zdybtn = get_value('zdybtn');
+    if (zdybtn) {
+        zdybtn = JSON.parse(zdybtn);
+    }
+
+    // 向 keyvalue 循环添加zdybtn的key value 值
+    var html = ''
+    for (let key in zdybtn) {
+        html += `<p><input type="text" value="${key}"</input> : <input type="text" value="${zdybtn[key]}"</p>`;
+    }
+    document.getElementById("keyvalue").innerHTML = html;
 }
 function creatFloatDiv() {
 
@@ -187,30 +290,44 @@ function creatFloatDiv() {
         "日常": "日常",
         "修炼": "修炼",
         "停止动作": "挂机",
-        "停止脚本": "$stop",
-        "重置武道": "$to 武道塔;$wait 1000;ask1 %守门人%",
-        "开始武道": "$to 扬州城-广场;$wudao",
-        "扫荡武道": "$to 扬州城-广场;$to 武道塔;$wait 1000;ask3 %守门人%",
-        "换装1": "$eq 1",
-        "技能1": "$eqskill 1",
-        "武庙疗伤": "$to 扬州城-武庙;liaoshang",
-        "清包": "$sellall",
-        "懒人练习": "stopstate;$atlx;$to 住房-练功房;dazuo",
-        "当铺": "stopstate;$tnbuy",
-        "导入流程或触发": "fx"
+    }
+    var userBtn = get_value('zdybtn')
+    if (userBtn == null) {
+        userBtn = {
+            "停止脚本": "$stop",
+            "重置武道": "$to 武道塔;$wait 1000;ask1 %守门人%",
+            "开始武道": "$to 扬州城-广场;$wudao",
+            "扫荡武道": "$to 扬州城-广场;$to 武道塔;$wait 1000;ask3 %守门人%",
+            "换装1": "$eq 1",
+            "技能1": "$eqskill 1",
+            "武庙疗伤": "$to 扬州城-武庙;liaoshang",
+            "清包": "$sellall",
+            "懒人练习": "stopstate;$atlx;$to 住房-练功房;dazuo",
+            "当铺": "stopstate;$tnbuy",
+        }
+        set_value('zdybtn', JSON.stringify(userBtn));
+    } else {
+        userBtn = JSON.parse(userBtn)
+    }
 
+    btnList = { ...btnList, ...userBtn }
+    if (nosc) {
+        btnList['备份'] = 'bf';
+        btnList['恢复'] = 'hf';
     }
-    if(nosc){
-        btnList['备份']='bf';
-        btnList['恢复']='hf';
-    }
-
-    for (let item in btnList) {
-        createLazyBtn(item, btnList[item])
-    }
+    btnList['导入流程或触发'] = 'fx';
+    btnList['自定义按钮'] = 'zdy';
+    addZdyBtn(btnList)
 
 }
 
+
+
+function addZdyBtn(btnList) {
+    for (let item in btnList) {
+        createLazyBtn(item, btnList[item])
+    }
+}
 
 
 function run(command) {
@@ -313,41 +430,41 @@ function saveConfig() {
     // a.click();
     // URL.revokeObjectURL(url);
 
-return `//
+    return `//
 @js var config={};var keys=Object.keys( localStorage);for( var k in keys){var key=keys[k];var value=localStorage.getItem( key);config[key]=value}var json=JSON.stringify( config);var blob=new Blob( [json],{type:"text/plain"});var url=URL.createObjectURL( blob);var a=document.createElement( "a");a.href=url;a.download="config.json";a.click( );URL.revokeObjectURL( url);`
 
 
 }
 
 
-function loadConfig(){
+function loadConfig() {
     alert('如果点击无效，请点击一下第一个子窗口')
-//   // 提示用户选择文件
-//     var input = document.createElement('input');
-//     input.type = 'file';
-//     input.onchange = function () {
-//         // 获取文件列表中的第一个文件
-//         var file = this.files[0];
-//         // 创建一个读取文件的对象
-//         var reader = new FileReader();
-//         // 将文件读取为字符串
-//         reader.readAsText(file);
-//         // 读取文件成功后执行的回调函数
-//         reader.onload = function () {
-//             // 获取文件内容
-//             var content = this.result;
-//             // 将json字符串转换为对象
-//             var config = JSON.parse(content);
-//             // 将对象中的属性赋值给 localStorage
-//             for (var key in config) {
-//                 localStorage.setItem(key, obj[key]);
-//             }
-//             alert('操作成功,请刷新页面')
-//         }
-//     }
-//     // 添加到页面中
-//     input.click();
-return `//
+    //   // 提示用户选择文件
+    //     var input = document.createElement('input');
+    //     input.type = 'file';
+    //     input.onchange = function () {
+    //         // 获取文件列表中的第一个文件
+    //         var file = this.files[0];
+    //         // 创建一个读取文件的对象
+    //         var reader = new FileReader();
+    //         // 将文件读取为字符串
+    //         reader.readAsText(file);
+    //         // 读取文件成功后执行的回调函数
+    //         reader.onload = function () {
+    //             // 获取文件内容
+    //             var content = this.result;
+    //             // 将json字符串转换为对象
+    //             var config = JSON.parse(content);
+    //             // 将对象中的属性赋值给 localStorage
+    //             for (var key in config) {
+    //                 localStorage.setItem(key, obj[key]);
+    //             }
+    //             alert('操作成功,请刷新页面')
+    //         }
+    //     }
+    //     // 添加到页面中
+    //     input.click();
+    return `//
 @js var input=document.createElement('input');input.type='file';input.onchange=function(){var file=this.files[0];var reader=new FileReader();reader.readAsText(file);reader.onload=function(){var content=this.result;var config=JSON.parse(content);for(var key in config){localStorage.setItem(key,config[key])}alert('操作成功,请刷新页面')}};input.click();`
 }
 

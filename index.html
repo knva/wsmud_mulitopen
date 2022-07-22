@@ -4,10 +4,28 @@
 <head>
 	<title>wsmud多开 -- QQ群:367657589</title>
 	<meta charset="UTF-8">
+	
+	<script src="http://cdn.bootcss.com/jquery/1.12.3/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/mulit.css">
+	<script src="layer/layer.js"></script>
 </head>
 
 <body>
+    <div id="userBtnSetting" style='display: none;'>
+		<!--添加一个输入框，名称-->
+		<label>名称：</label><input type="text" id="btname" value="">
+		<!--添加一个按钮 点击触发addrow-->
+		<button id="addrow" class="btn btn-primary">添加</button>
+		<!--添加一个按钮 点击触发addrow-->
+		<button id="save" class="btn btn-primary">保存</button>
+		<!--添加一个按钮 点击触发output-->
+		<button id="outputbtn" class="btn btn-primary">导出</button>
+		<!--添加一个按钮 点击触发output-->
+		<button id="inputbtn" class="btn btn-primary">导入</button>
+		<!--添加一个空的div 用于显示keyvalue-->
+		<div id="keyvalue"></div>
+		
+	</div>
 
 	<div id="buttonArea"></div>
 
@@ -17,6 +35,8 @@
 	<div id="float"></div>
 
 	<div id="iframeArea"></div>
+
+
 
 	<script src="js/mulit.js"></script>
 
