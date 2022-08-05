@@ -9,6 +9,11 @@ button {
 	/*font-size: 2em;*/
 	position: relative;margin: 0px 5px 4px 5px;
 }
+#float {
+    /*底部边距*/
+	margin-bottom: 10px;
+}
+
 #userBtnSetting{
 	/* 左边距5px*/
 	margin-left: 15px;

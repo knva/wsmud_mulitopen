@@ -1,6 +1,7 @@
 var count = 0;
 var prefix = 'www';
 var nosc = false;
+var layopen = false;
 (function () {
     let r = getQueryString("c");
     let auto = getQueryString("a");
@@ -20,6 +21,7 @@ var nosc = false;
         div2.innerHTML = "指定数量：<input id='aid' /> <button id='opa' >开</button>";
         div2.innerHTML += "<p>自动登录：<input id='auto' type='checkbox' '/> 需要使用0.0.32.120 以上版本的wsmud_pluginss</p>";
         div2.innerHTML += "<p>我没装脚本：<input id='nosc' type='checkbox' '/> 简单脚本模式,不依赖tampermonkey</p>";
+        div2.innerHTML += "<p>弹层式窗口：<input id='layopen' type='checkbox' '/> 使用弹层显示游戏页面,窗口更个性</p>";
         div2.innerHTML += "<p>本项目为开源项目,对css有建议的请到<a href='https://aize.coding.net/p/wsmud/'>https://aize.coding.net/p/wsmud/</a>提交PR</p>";
         var opBtn = document.getElementById("opa");
         opBtn.onclick = function () {
@@ -28,6 +30,7 @@ var nosc = false;
         }
         var auBtn = document.getElementById("auto");
         var noBtn = document.getElementById("nosc");
+        var layopenBtn = document.getElementById("layopen");
         auBtn.onchange = function () {
             addCookie('auto', document.getElementById("auto").checked)
             auto = document.getElementById("auto").checked
@@ -35,6 +38,10 @@ var nosc = false;
         noBtn.onchange = function () {
             addCookie('nosc', document.getElementById("nosc").checked)
             nosc = document.getElementById("nosc").checked
+        }
+        layopenBtn.onchange = function () {
+            addCookie('layopen', document.getElementById("layopen").checked)
+            layopen = document.getElementById("layopen").checked
         }
         if (getCookie('auto') == 'false') {
             document.getElementById("auto").checked = false;
@@ -47,6 +54,13 @@ var nosc = false;
         } else {
             document.getElementById("nosc").checked = true;
             nosc = true;
+        }
+        if (getCookie('layopen') == 'false') {
+            document.getElementById("layopen").checked = false;
+            layopen = false;
+        } else {
+            document.getElementById("layopen").checked = true;
+            layopen = true;
         }
 
         // 绑定addrow 事件
@@ -79,7 +93,7 @@ var nosc = false;
             set_value('zdybtn', JSON.stringify(zdybtn));
             rebuild_btnhtml();
             addbtns();
-            
+
         }
         // 绑定outputbtn
         document.getElementById("outputbtn").onclick = function () {
@@ -121,7 +135,16 @@ var nosc = false;
         }
     }
 
+
+    // 添加 listener
+    window.addEventListener('message', function (e) {
+        console.log(e.data);
+    });
+
+
 })();
+
+
 
 function get_value(name) {
     //返回本地存储
@@ -267,7 +290,64 @@ function creatFloatDiv() {
     sendBtn.onclick = function () {
         send();
     }
+
     var float = document.getElementById("float");
+    if (layopen){
+        var button = document.createElement("button");
+        button.innerHTML = "开一个新窗口";
+        button.className = "float";
+        button.onclick = function () {
+            count = parseInt(count) +1
+            var box = document.createElement("div");
+            box.className = "big_box";
+            box.id = "box" + count;
+
+            var iframe = document.createElement("iframe");
+            iframe.id = 'f' + count;
+            if (nosc) {
+                iframe.src = `http://mush.aize.org/?test`;
+            } else {
+                iframe.src = `http://${prefix}.wamud.com/?test`;
+            }
+
+
+            var rbtn = `<button  id="btn" onclick="flush(${count})">刷</button>`
+
+            rbtn[count] = document.createElement("button");
+            rbtn[count].innerHTML = '刷' + count;
+            rbtn[count].onclick = "flush(" + count + ")";
+
+
+            var cover = document.createElement("div");
+            cover.className = "disable";
+            cover.id = "cover" + count;
+            cover.innerHTML = count;
+            cover.onclick = function () {
+                this.className = "disable"; // cover 消失
+                document.getElementById("box" + this.innerHTML).className = "big_box"; // box 变大
+            };
+
+            box.appendChild(iframe);
+
+
+            box.innerHTML += rbtn;
+
+            box.appendChild(cover);
+
+            layer.open({
+                type: 1,
+                title: cover.id,
+                maxmin: true, //开启最大化最小化按钮
+                shadeClose: true,
+                shade: false,
+                area: ['380px', '720px'],
+                content: box.innerHTML //iframe的url
+              }); 
+            
+        };
+        float.appendChild(button);
+
+    }else{
     var button = document.createElement("button");
     button.innerHTML = "全部最大化";
     button.className = "float";
@@ -290,11 +370,12 @@ function creatFloatDiv() {
         }
     };
     float.appendChild(button);
+}
     addbtns();
 
 }
 
-function addbtns(){
+function addbtns() {
     var float = document.getElementById("floatbtns");
     float.innerHTML = '';
     var btnList = {
@@ -349,55 +430,118 @@ function run(command) {
     button2Area.className = "disable";
     var iframeArea = document.getElementById("iframeArea");
     iframeArea.innerHTML = "";
+  
     for (var i = 1; i <= count; i++) {
-        var box = document.createElement("div");
-        box.className = "big_box";
-        box.id = "box" + i;
+        if (layopen) {
 
-        var iframe = document.createElement("iframe");
-        iframe.id = 'f' + i;
-        let auto = getQueryString(i);
-        //自动登录
-        if (auto || command == "1" || document.getElementById("auto").checked)
+            var box = document.createElement("div");
+            box.className = "big_box";
+            box.id = "box" + i;
 
-            if (nosc) {
-                iframe.src = `http://mush.aize.org/?test&login=${i}`;
-            } else {
-                iframe.src = `http://${prefix}.wamud.com/?test&login=${i}`;
+            var iframe = document.createElement("iframe");
+            iframe.id = 'f' + i;
+            let auto = getQueryString(i);
+            //自动登录
+            if (auto || command == "1" || document.getElementById("auto").checked)
+
+                if (nosc) {
+                    iframe.src = `http://mush.aize.org/?test&login=${i}`;
+                } else {
+                    iframe.src = `http://${prefix}.wamud.com/?test&login=${i}`;
+                }
+            else {
+                if (nosc) {
+                    iframe.src = `http://mush.aize.org/?test`;
+                } else {
+                    iframe.src = `http://${prefix}.wamud.com/?test`;
+                }
             }
-        else {
-            if (nosc) {
-                iframe.src = `http://mush.aize.org/?test`;
-            } else {
-                iframe.src = `http://${prefix}.wamud.com/?test`;
+
+
+            var rbtn = `<button  id="btn" onclick="flush(${i})">刷</button>`
+
+            rbtn[i] = document.createElement("button");
+            rbtn[i].innerHTML = '刷' + i;
+            rbtn[i].onclick = "flush(" + i + ")";
+
+
+            var cover = document.createElement("div");
+            cover.className = "disable";
+            cover.id = "cover" + i;
+            cover.innerHTML = i;
+            cover.onclick = function () {
+                this.className = "disable"; // cover 消失
+                document.getElementById("box" + this.innerHTML).className = "big_box"; // box 变大
+            };
+
+            box.appendChild(iframe);
+
+
+            box.innerHTML += rbtn;
+
+            box.appendChild(cover);
+
+            layer.open({
+                type: 1,
+                title: cover.id,
+                maxmin: true, //开启最大化最小化按钮
+                shadeClose: true,
+                shade: false,
+                area: ['380px', '720px'],
+                content: box.innerHTML //iframe的url
+              }); 
+
+         } else {
+
+            var box = document.createElement("div");
+            box.className = "big_box";
+            box.id = "box" + i;
+
+            var iframe = document.createElement("iframe");
+            iframe.id = 'f' + i;
+            let auto = getQueryString(i);
+            //自动登录
+            if (auto || command == "1" || document.getElementById("auto").checked)
+
+                if (nosc) {
+                    iframe.src = `http://mush.aize.org/?test&login=${i}`;
+                } else {
+                    iframe.src = `http://${prefix}.wamud.com/?test&login=${i}`;
+                }
+            else {
+                if (nosc) {
+                    iframe.src = `http://mush.aize.org/?test`;
+                } else {
+                    iframe.src = `http://${prefix}.wamud.com/?test`;
+                }
             }
+
+
+            var rbtn = `<button  id="btn" onclick="flush(${i})">刷</button>`
+
+            rbtn[i] = document.createElement("button");
+            rbtn[i].innerHTML = '刷' + i;
+            rbtn[i].onclick = "flush(" + i + ")";
+
+
+            var cover = document.createElement("div");
+            cover.className = "disable";
+            cover.id = "cover" + i;
+            cover.innerHTML = i;
+            cover.onclick = function () {
+                this.className = "disable"; // cover 消失
+                document.getElementById("box" + this.innerHTML).className = "big_box"; // box 变大
+            };
+
+            box.appendChild(iframe);
+
+
+            box.innerHTML += rbtn;
+
+            box.appendChild(cover);
+            iframeArea.appendChild(box);
+
         }
-
-
-        var rbtn = `<button  id="btn" onclick="flush(${i})">刷</button>`
-
-        rbtn[i] = document.createElement("button");
-        rbtn[i].innerHTML = '刷' + i;
-        rbtn[i].onclick = "flush(" + i + ")";
-
-
-        var cover = document.createElement("div");
-        cover.className = "disable";
-        cover.id = "cover" + i;
-        cover.innerHTML = i;
-        cover.onclick = function () {
-            this.className = "disable"; // cover 消失
-            document.getElementById("box" + this.innerHTML).className = "big_box"; // box 变大
-        };
-
-        box.appendChild(iframe);
-
-
-        box.innerHTML += rbtn;
-
-        box.appendChild(cover);
-        iframeArea.appendChild(box);
-
 
     }
 
@@ -473,8 +617,10 @@ function loadConfig() {
     //     }
     //     // 添加到页面中
     //     input.click();
-    return `//
-@js var input=document.createElement('input');input.type='file';input.onchange=function(){var file=this.files[0];var reader=new FileReader();reader.readAsText(file);reader.onload=function(){var content=this.result;var config=JSON.parse(content);for(var key in config){localStorage.setItem(key,config[key])}alert('操作成功,请刷新页面')}};input.click();`
+//     return `//
+// @js var input=document.createElement('input');input.type='file';input.onchange=function(){var file=this.files[0];var reader=new FileReader();reader.readAsText(file);reader.onload=function(){var content=this.result;var config=JSON.parse(content);for(var key in config){localStorage.setItem(key,config[key])}alert('操作成功,请刷新页面')}};input.click();`
+return `//
+@js var input=document.createElement( 'input');input.type='file';input.onchange=function(){var file=this.files[0];var reader=new FileReader( );reader.readAsText( file);reader.onload=function( ){console.log( this.result);var content=this.result;var config=JSON.parse( content);for(var key in config){localStorage.setItem(key,config[key])}alert('操作成功,请刷新页面')}};input.click();`
 }
 
 
