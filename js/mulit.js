@@ -22,7 +22,6 @@ var layopen = false;
         div2.innerHTML += "<p>自动登录：<input id='auto' type='checkbox' '/> 需要使用0.0.32.120 以上版本的wsmud_pluginss</p>";
         div2.innerHTML += "<p>我没装脚本：<input id='nosc' type='checkbox' '/> 简单脚本模式,不依赖tampermonkey</p>";
         div2.innerHTML += "<p>弹层式窗口：<input id='layopen' type='checkbox' '/> 使用弹层显示游戏页面,窗口更个性</p>";
-        div2.innerHTML += "<p>本项目为开源项目,对css有建议的请到<a href='https://aize.coding.net/p/wsmud/'>https://aize.coding.net/p/wsmud/</a>提交PR</p>";
         var opBtn = document.getElementById("opa");
         opBtn.onclick = function () {
             count = document.getElementById("aid").value;
@@ -76,6 +75,7 @@ var layopen = false;
             rebuild_btnhtml()
 
         }
+
 
         // 绑定save事件
         document.getElementById("save").onclick = function () {
@@ -264,6 +264,19 @@ function createLazyBtn(name, order) {
     float.appendChild(button);
 
 }
+function del(key){
+
+   var zdybtn = get_value('zdybtn');
+    if (zdybtn) {
+        zdybtn = JSON.parse(zdybtn);
+    }
+    //删除 zdybtn 中的 key为key的数据
+    delete zdybtn[key];
+    set_value('zdybtn', JSON.stringify(zdybtn));
+    rebuild_btnhtml()
+
+
+}
 function rebuild_btnhtml() {
     // 清空keyvalue
     document.getElementById("keyvalue").innerHTML = "";
@@ -275,9 +288,10 @@ function rebuild_btnhtml() {
     // 向 keyvalue 循环添加zdybtn的key value 值
     var html = ''
     for (let key in zdybtn) {
-        html += `<p><input type="text" value="${key}"</input> : <textarea name="textarea"
-        rows="3" cols="40"
-        placeholder="Comment text.">${zdybtn[key]}</textarea></p>`;
+        html += `<p>
+            <input type="text" value="${key}"</input> : <textarea name="textarea" rows="3" cols="40" placeholder="请输入指令">${zdybtn[key]}</textarea>
+            <button onclick='del("${key}")'>删除</button>
+            </p>`;
     }
     document.getElementById("keyvalue").innerHTML = html;
 }
@@ -341,7 +355,11 @@ function creatFloatDiv() {
                 shadeClose: true,
                 shade: false,
                 area: ['380px', '720px'],
-                content: box.innerHTML //iframe的url
+                content: box.innerHTML , //iframe的url
+                zIndex: layer.zIndex, //重点1
+                success: function(layero){
+                  layer.setTop(layero); //重点2
+                }
               }); 
             
         };
@@ -488,7 +506,11 @@ function run(command) {
                 shadeClose: true,
                 shade: false,
                 area: ['380px', '720px'],
-                content: box.innerHTML //iframe的url
+                content: box.innerHTML, //iframe的url
+                zIndex: layer.zIndex, //重点1
+                success: function(layero){
+                  layer.setTop(layero); //重点2
+                }
               }); 
 
          } else {
