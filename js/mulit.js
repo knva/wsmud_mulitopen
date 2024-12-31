@@ -1,8 +1,20 @@
+
 var count = 0;
 var prefix = 'www';
 var nosc = false;
 var layopen = false;
+// 滚动到最上方
+function scrolltop() {
+    var top = document.body.scrollTop || document.documentElement.scrollTop;
+    if (top > 0) {
+
+        window.scrollBy(0, ((top + 100) / -10));
+        var scrolldelay = setTimeout('scrolltop()', 10);
+    } else clearTimeout(scrolldelay);
+}
+
 (function () {
+    scrolltop()
     let r = getQueryString("c");
     let auto = getQueryString("a");
     if (r) {
@@ -98,9 +110,9 @@ var layopen = false;
         // 绑定outputbtn
         document.getElementById("outputbtn").onclick = function () {
             var zdybtn = get_value('zdybtn');
-            if (zdybtn) {
-                zdybtn = JSON.parse(zdybtn);
-            }
+//            if (zdybtn) {
+  //              zdybtn = JSON.parse(zdybtn);
+    //        }
             // 下载json文件
             var blob = new Blob([zdybtn], { type: "text/plain;charset=utf-8" });
             var url = URL.createObjectURL(blob);
@@ -126,7 +138,7 @@ var layopen = false;
                 reader.onload = function () {
                     var text = reader.result;
                     zdybtn = JSON.parse(text);
-                    set_value('zdybtn', JSON.stringify(text));
+                    set_value('zdybtn', JSON.stringify(zdybtn));
                     rebuild_btnhtml();
                 }
                 reader.readAsText(file);
@@ -440,6 +452,8 @@ function addZdyBtn(btnList) {
 
 function run(command) {
 
+    // 隐藏id 为ad的div
+    document.getElementById("ad").style.display = "none";
 
     creatFloatDiv();
     var buttonArea = document.getElementById("buttonArea");
